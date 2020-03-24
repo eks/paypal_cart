@@ -1,0 +1,21 @@
+version: '3'
+services:
+  db:
+    image: postgres:12-alpine
+    env_file:
+      .env.docker
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/paypal_cart
+    ports:
+      - "3000:3000"
+    env_file:
+      .env.docker
+    depends_on:
+      - db
+
