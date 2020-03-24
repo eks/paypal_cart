@@ -1,0 +1,19 @@
+<div>
+  <h1>List of Products</h1>
+  <%= form_tag({controller: 'orders', action: 'submit'}, {id: 'order'}) do %>
+    <div class="form_row">
+      <% @products.each do |product| %>
+        <%= radio_button_tag 'orders[product_id]', product.id, @products.first == product %>
+        <span id="radioButtonName<%= product.id %>"><%= product.name %></span>
+        <span
+          data-price="<%= product.price_cents %>"
+          id="radioButtonPrice<%= product.id %>"
+        >
+          <%= humanized_money_with_symbol product.price %>
+        </span>
+        <br/>
+      <% end %>
+    </div>
+    <%= submit_tag "Buy" %>
+  <% end %>
+</div>
