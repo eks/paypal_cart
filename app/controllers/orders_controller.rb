@@ -3,6 +3,7 @@ class OrdersController < ApplicationController
 
   def index
     @products = Product.all
+    @user_info = UserInfo.find_by(user_id: current_user.id)
   end
 
   def submit

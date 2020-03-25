@@ -1,4 +1,32 @@
 <div>
+  <h1>Welcome back <%= "#{@user_info.first_name} #{@user_info.last_name}" %></h1>
+  <div>
+    <%= form_with model: @user_info do |f| %>
+      <%= f.label :first_name %>
+      <%= f.text_field :first_name %>
+      <br/>
+      <%= f.label :last_name %>
+      <%= f.text_field :last_name %>
+      <br/>
+      <%= f.label :phone_number %>
+      <%= f.telephone_field :phone_number %>
+      </br>
+      <h2>Shipping Address:</h2>
+      <%= f.label :country %>
+      <%= f.text_field :country %>
+      <br/>
+      <%= f.label :street %>
+      <%= f.text_field :street %>
+      <br/>
+      <%= f.label :zipcode %>
+      <%= f.text_field :zipcode %>
+      <br/>
+      <%= f.label :state %>
+      <%= f.text_field :state %>
+      <br/>
+      <%= f.button :submit %>
+    <% end %>
+  </div>
   <h1>List of Products</h1>
   <%= form_tag({controller: 'orders', action: 'submit'}, {id: 'order'}) do %>
     <div class="form_row">
