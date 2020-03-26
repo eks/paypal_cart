@@ -1,11 +1,15 @@
 class UserInfosController < ApplicationController
+  def edit
+    @user_info = UserInfo.find(params[:id])
+  end
+
   def update
     user_info = UserInfo.find(params[:id])
 
-    if user_info.update_attributes(params[:user_info])
-      redirect_to root_path, notice: 'User information updated'
+    if user_info.update_attributes(user_info_params)
+      redirect_to '/', notice: 'User information updated'
     else
-      redirect_to :back
+      redirect_to '/', alert: 'Something went wrong!'
     end
   end
 

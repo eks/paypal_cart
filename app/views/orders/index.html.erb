@@ -1,7 +1,8 @@
+<script src=<%="https://www.paypal.com/sdk/js?client-id=#{ENV['PAYPAL_CLIENT_ID']}"%>></script>
 <div>
-  <h1>Welcome back <%= "#{@user_info.first_name} #{@user_info.last_name}" %></h1>
+  <h1>Hello <%= "#{@user_info.first_name} #{@user_info.last_name}" %></h1>
   <div>
-    <%= form_with model: @user_info do |f| %>
+    <%= form_for @user_info, url: user_info_path(@user_info.id) do |f| %>
       <%= f.label :first_name %>
       <%= f.text_field :first_name %>
       <br/>
@@ -24,24 +25,63 @@
       <%= f.label :state %>
       <%= f.text_field :state %>
       <br/>
-      <%= f.button :submit %>
+      <%= f.submit :submit %>
     <% end %>
   </div>
-  <h1>List of Products</h1>
-  <%= form_tag({controller: 'orders', action: 'submit'}, {id: 'order'}) do %>
+  <hr/>
+  <br/>
+  <br/>
+
+  <h1>Products</h1>
+  <%= form_tag({:controller => "orders", :action => "submit" }, {:id => 'order-details'}) do %>
     <div class="form_row">
       <% @products.each do |product| %>
         <%= radio_button_tag 'orders[product_id]', product.id, @products.first == product %>
         <span id="radioButtonName<%= product.id %>"><%= product.name %></span>
-        <span
-          data-price="<%= product.price_cents %>"
-          id="radioButtonPrice<%= product.id %>"
-        >
+        <span data-price="<%= product.price_cents %>" id="radioButtonPrice<%= product.id %>">
           <%= humanized_money_with_symbol product.price %>
         </span>
         <br/>
       <% end %>
     </div>
-    <%= submit_tag "Buy" %>
+    <hr/>
+    <br/>
+    <br/>
+    <div id="paypal-button-container"></div>
+    <br/>
+    <br/>
+    <hr/>
   <% end %>
 </div>
+
+<script>
+  (function setupPaypal() {
+
+    function submitOrderPaypal(chargeID) {
+      var $form = $("#order-details");
+      // Add a hidden input orders[charge_id]
+      $form.append($('<input type="hidden" name="orders[charge_id]"/>').val(chargeID));
+      // Set order type
+      $('#order-type').val('paypal');
+      $form.submit();
+    }
+
+    paypal.Buttons({
+      env: "<%= ENV['PAYPAL_ENV'] %>",
+      createOrder: function() {
+        $('#order-type').val("paypal");
+        return $.post("<%= paypal_create_payment_url %>", $('#order-details').serialize()).then(function(data) {
+          return data.token;
+        });
+      },
+      onApprove: function(data) {
+        return $.post("<%= paypal_execute_payment_url %>", {
+          paymentID: data.paymentID,
+          payerID:   data.payerID
+        }).then(function() {
+          submitOrderPaypal(data.paymentID)
+        });
+      }
+    }).render('#paypal-button-container');
+  }());
+</script>
