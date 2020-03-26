@@ -28,3 +28,4 @@
 
 *.un*
 *.sw*
+.env.docker
