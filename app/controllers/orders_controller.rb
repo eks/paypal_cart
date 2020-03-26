@@ -3,7 +3,7 @@ class OrdersController < ApplicationController
   before_action :prepare_new_order, only: [:paypal_create_payment]
 
   FAILURE_MESSAGE = 'Something went wrong'
-  SUCCESS_MESSAGE = 'Your order was placed successfully!'
+  SUCCESS_MESSAGE = 'Your order was placed successfully! Transaction ID: '
 
   def index
     @products = Product.all
@@ -13,7 +13,7 @@ class OrdersController < ApplicationController
 
   def paypal_create_payment
     PayPal::SDK::REST.set_config(
-      :mode => "sandbox",
+      :mode => ENV['PAYPAL_ENV'],
       :client_id => ENV['PAYPAL_CLIENT_ID'],
       :client_secret => ENV['PAYPAL_CLIENT_SECRET'])
 
@@ -38,7 +38,7 @@ class OrdersController < ApplicationController
   ensure
     if @order&.save
       if @order.paid?
-        return render html: SUCCESS_MESSAGE
+        return render html: SUCCESS_MESSAGE + @order.charge_id
       elsif @order.failed? && !@order.error_message.blank?
         return render html: @order.error_message
       end
